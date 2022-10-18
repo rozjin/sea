@@ -5,6 +5,7 @@ import us.racem.sea.util.InterpolationLogger;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -56,8 +57,8 @@ public class RouteParser {
                 : MatchKind.PATTERN;
 
         var name = switch (kind) {
-            case STRING -> null;
-            case PATTERN -> "(" + regex.group("NAME") + ")";
+            case STRING -> regex.group("PART");
+            case PATTERN -> regex.group("NAME");
         };
 
         var ptrn = switch (kind) {
@@ -69,12 +70,27 @@ public class RouteParser {
         return new MatchObj(name, ptrn, kind, sep, other);
     }
 
+    private static RouteSegment make(List<MatchObj> matchers, Method receiver) {
+        var ptrn = matchers.get(0).ptrn;
+        var name = matchers.get(0).name;
+
+        if (in(ptrn, Router.routes())) {
+            return take(ptrn, Router.routes());
+        } else {
+            if (matchers.size() == 1) {
+                return new RouteSegment(name, ptrn, null, receiver);
+            }
+
+            return new RouteSegment(name, ptrn, null, null);
+        }
+    }
+
     public static RouteSegment parse(String path, Method receiver) {
         if (Objects.equals(path, "/") ||
             Objects.equals(path, "//")) {
             return in("/", Router.routes())
                     ? take("/", Router.routes())
-                    : new RouteSegment("/", receiver);
+                    : new RouteSegment("/", "/", null, receiver);
         }
 
         var matchers = new ArrayList<MatchObj>();
@@ -98,20 +114,10 @@ public class RouteParser {
         var pathMatchers = slice(matchers, 1, (match) -> match.sep == MatchSep.AND);
         var queryMatchers = slice(matchers, (match) -> match.sep == MatchSep.AND);
 
-        RouteSegment root;
-        if (in(matchers.get(0).ptrn, Router.routes())) {
-            root = take(matchers.get(0).ptrn, Router.routes());
-        } else {
-            if (matchers.size() == 1) {
-                return new RouteSegment(matchers.get(0).ptrn, receiver);
-            }
-
-            root = new RouteSegment(matchers.get(0).ptrn);
-        }
-
+        var root = make(matchers, receiver);
         var pivot = root;
         for (var pathMatcher : pathMatchers) {
-            pivot = pivot.leaf(pathMatcher.ptrn);
+            pivot = pivot.fork(pathMatcher.name, pathMatcher.ptrn);
         }
 
         for (int i = 0; i < queryMatchers.size(); i++) {
@@ -129,7 +135,7 @@ public class RouteParser {
             };
 
             if (ptrn == null) return null;
-            pivot = pivot.leaf(ptrn);
+            pivot = pivot.fork(name, ptrn);
         }
         pivot.bind(receiver);
 

@@ -15,7 +15,7 @@ public class MethodUtils {
                 ? MethodHandles.privateLookupIn(receiver.getDeclaringClass(), MethodHandles.lookup())
                 : MethodHandles.lookup();
         var handle = lookup.unreflect(receiver);
-        if (!isStatic(receiver)) handle.bindTo(receiverObj);
+        if (!isStatic(receiver)) handle = handle.bindTo(receiverObj);
 
         return handle;
     }

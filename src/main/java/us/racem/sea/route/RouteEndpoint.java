@@ -1,6 +1,7 @@
 package us.racem.sea.route;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import us.racem.sea.body.Response;
 import us.racem.sea.fish.Ocean;
@@ -79,12 +80,21 @@ public class RouteEndpoint {
         return patterns;
     }
 
-    private Pattern param(String name) {
+    private Pattern ptrn(String name) {
         for (var seg: segments) {
-            if (seg.equals(name)) return seg.ptrn();
+            if (seg.nameEquals(name)) return seg.ptrn();
         }
 
         return null;
+    }
+
+    private int pos(String name) {
+        var segments = Lists.reverse(this.segments);
+        for (int i = 0; i < segments.size(); i++) {
+            if (segments.get(i).nameEquals(name)) return i;
+        }
+
+        return -1;
     }
 
     private String path(Method receiver) {
@@ -165,19 +175,21 @@ public class RouteEndpoint {
         return null;
     }
 
-    private int kindOf(Parameter par) {
+    private enum TargetParameterKind { HEADER, PARAM, BODY, OTHER };
+
+    private TargetParameterKind kindOf(Parameter par) {
         var type = par.getAnnotatedType();
         var header = type.getAnnotation(NamedHeader.class);
         var param = type.getAnnotation(NamedParam.class);
         var body = type.getAnnotation(Body.class);
 
-        if (!xor(header, param, body)) return -1;
+        if (!xor(header, param, body)) return TargetParameterKind.OTHER;
 
-        if (header != null) return 0;
-        if (param != null) return 1;
-        if (body != null) return 2;
+        if (header != null) return TargetParameterKind.HEADER;
+        if (param != null) return TargetParameterKind.PARAM;
+        if (body != null) return TargetParameterKind.BODY;
 
-        return -1;
+        return TargetParameterKind.OTHER;
     }
 
     private static class ThunkInvoker {
@@ -196,8 +208,9 @@ public class RouteEndpoint {
                 }
             }
 
-            private static Object paramThunk(Pattern ptrn, String path) {
-                var regex = ptrn.matcher(path);
+            private static Object paramThunk(Pattern ptrn, String seg) {
+                var regex = ptrn.matcher(seg);
+                regex.find();
                 return regex.group(0);
             }
 
@@ -213,62 +226,69 @@ public class RouteEndpoint {
         private List<Thunk> thunks;
         private MethodHandle target;
         private MethodHandle zero;
-
-        private int pos;
+        private int count;
+        private boolean built;
 
         public ThunkInvoker(MethodHandle target) {
             this.thunks = new ArrayList<>();
             this.target = target;
+            this.count = 0;
+            this.built = false;
             this.zero = MethodHandles.constant(Object.class, null);
-            this.pos = 0;
         }
 
         public ThunkInvoker header(String name) {
             var target = InternalThunks.HEADER_THUNK
                             .bindTo(name);
-            thunks.add(new Thunk(pos, target, ThunkKind.HEADER));
-            this.pos = pos + 1;
-
+            thunks.add(new Thunk(-1, target, ThunkKind.HEADER));
+            count++;
             return this;
         }
 
-        public ThunkInvoker param(Pattern ptrn) {
+        public ThunkInvoker param(Pattern ptrn, int pos) {
             var target = InternalThunks.PARAMETER_THUNK
                     .bindTo(ptrn);
             thunks.add(new Thunk(pos, target, ThunkKind.PARAM));
-            this.pos = pos + 1;
-
+            count++;
             return this;
         }
 
         public ThunkInvoker body() {
             var target = MethodHandles.identity(byte[].class);
-            thunks.add(new Thunk(pos, target, ThunkKind.BODY));
-            this.pos = pos + 1;
-
+            thunks.add(new Thunk(-1, target, ThunkKind.BODY));
+            count++;
             return this;
         }
 
         public ThunkInvoker zero() {
             var target = zero;
-            thunks.add(new Thunk(pos, zero, ThunkKind.ZERO));
-            this.pos = pos + 1;
-
+            thunks.add(new Thunk(-1, zero, ThunkKind.ZERO));
+            count++;
             return this;
         }
 
         public Object invoke(String path, Map<String, List<String>> headers, byte[] body) throws Throwable {
+            var parts = path.split("/{1,2}");
             var res = new ArrayList<>();
-            for (var thunk: thunks) {
+
+            for (var thunk : thunks) {
                 res.add(switch (thunk.kind) {
                     case HEADER -> thunk.target.invoke(headers);
-                    case PARAM -> thunk.target.invoke(path);
+                    case PARAM -> thunk.target.invoke(parts[thunk.pos]);
                     case BODY -> thunk.target.invoke(body);
                     case ZERO -> thunk.target.invoke();
                 });
             }
 
             return target.invoke(res.toArray());
+        }
+
+        public ThunkInvoker build() {
+            if (built) throw new RuntimeException("Thunk has been built!");
+            this.built = true;
+            this.target = target
+                    .asSpreader(Object[].class, count);
+            return this;
         }
     }
 
@@ -278,26 +298,14 @@ public class RouteEndpoint {
         return (T[]) arr;
     }
 
-    private record MetaObject(int headers, int params, int body) {};
-    private static Response wrapper(String mime, MethodHandle receiver,
-                                    MetaObject meta,
+    private static Response wrapper(ThunkInvoker invoker,
+                                    String mime,
                                     String path,
                                     Map<String, List<String>> headers,
                                     byte[] body)
             throws Throwable {
-        if (meta.headers > 1) {
-            receiver.bindTo(dup(meta.headers, headers));
-        }
 
-        if (meta.params > 1) {
-            receiver.bindTo(dup(meta.params, path));
-        }
-
-        if (meta.body > 1) {
-            receiver.bindTo(dup(meta.body, body));
-        }
-
-        var obj = receiver.invoke();
+        var obj = invoker.invoke(path, headers, body);
         return switch (obj) {
             case Response rsp -> {
                 var bytes = switch (mime) {
@@ -349,166 +357,35 @@ public class RouteEndpoint {
     private MethodHandle bind(Method receiver) throws
             NoSuchMethodException,
             IllegalAccessException {
-        var params = ordered(receiver);
-        var fn = reorder(receiver, inst);
-
-        for (int i = 0; i < params.length; i++)  {
-            var param = params[i];
-            var name = nameOf(param);
-            var kind = kindOf(param);
-            if ((kind == 0 || kind == 1) && name == null) continue;
-
-            switch (kind) {
-                case 0 -> {
-                    var thunk = unreflect(Thunks
-                                    .class
-                                    .getDeclaredMethod("headerThunk", String.class, Map.class),
-                            null)
-                            .bindTo(name);
-                    fn = MethodHandles.foldArguments(fn, thunk);
-                }
-
-                case 1 -> {
-                    var ptrn= param(name);
-                    var thunk = unreflect(Thunks
-                                .class
-                                .getDeclaredMethod("paramThunk", Pattern.class, String.class),
-                            null)
-                            .asType(methodType(param.getType(), Pattern.class, String.class))
-                            .bindTo(ptrn);
-                    fn = MethodHandles.foldArguments(fn, 0, thunk);
-                }
-            }
-        }
-
-        if (numberOf(receiver, "body") > 1) {
-            var thunk = unreflect(Thunks
-                    .class
-                    .getDeclaredMethod("bodyThunk", int.class, byte[].class),
-                    null)
-                    .bindTo(numberOf(receiver, "body"));
-            fn = MethodHandles.collectArguments(fn, 0, thunk);
-        }
-
-        var pos = 0;
-        if ((pos = numberOf(receiver, "headers")) > 1) {
-            fn = fn.asSpreader(pos, Map[].class, numberOf(receiver, "headers"));
-        }
-
-        if ((pos = pos + numberOf(receiver, "params")) > 1) {
-            fn = fn.asSpreader(pos, String[].class, numberOf(receiver, "params"));
-        }
-
-        if ((pos = pos + numberOf(receiver, "body")) > 1) {
-            fn = fn.asSpreader(pos, byte[][].class, numberOf(receiver, "body"));
-        }
-
-        return unreflect(RouteEndpoint.class
-                        .getDeclaredMethod("wrapper",
-                                String.class, MethodHandle.class,
-                                MetaObject.class,
-                                String.class, Map.class,
-                                byte[].class),
-                null)
-                .bindTo(mime)
-                .bindTo(fn)
-                .bindTo(new MetaObject(
-                    numberOf(receiver, "headers"),
-                    numberOf(receiver, "params"),
-                    numberOf(receiver, "body")
-                ));
-    }
-
-    private int numberOf(Method fn, String what) {
-        var ord = switch (what) {
-            case "headers" -> 0;
-            case "params" -> 1;
-            case "body" -> 3;
-            case null, default -> -1;
-        };
-
-        var count = 0;
-        var params = fn.getParameters();
-
-        for (int i = 0; i < params.length; i++) {
-            var param = params[i];
-            var name = nameOf(param);
-            var kind = kindOf(param);
-            if ((kind == 0 || kind == 1) && name == null) continue;
-            if (kind == ord) count++;
-        }
-
-        return count;
-    }
-
-    private Parameter[] ordered(Method fn) {
-        var params = fn.getParameters();
-
-        var headerClasses = new HashSet<Parameter>();
-        var paramClasses = new HashSet<Parameter>();
-        var bodyClasses = new HashSet<Parameter>();
-        var otherClasses = new HashSet<Parameter>();
+        var params = receiver.getParameters();
+        var fn = unreflect(receiver, inst);
+        var invoker = new ThunkInvoker(fn);
 
         for (var param : params) {
             var name = nameOf(param);
             var kind = kindOf(param);
-            if ((kind == 0 || kind == 1) && name == null) continue;
+            if ((kind == TargetParameterKind.PARAM || kind == TargetParameterKind.HEADER) && name == null) continue;
+
             switch (kind) {
-                case 0 -> headerClasses.add(param);
-                case 1 -> paramClasses.add(param);
-                case 3 -> bodyClasses.add(param);
-                case -1 -> otherClasses.add(param);
+                case HEADER -> invoker.header(name);
+                case PARAM -> {
+                    var pos = pos(name);
+                    var ptrn = ptrn(name);
+                    if (pos == -1) continue;
+
+                    invoker.param(ptrn, pos);
+                }
+                case BODY -> invoker.body();
+                case OTHER -> invoker.zero();
             }
         }
 
-        return union(headerClasses, paramClasses, bodyClasses, otherClasses)
-                .toArray(new Parameter[0]);
-    }
-
-    private MethodHandle reorder(Method receiver, Object receiverObj) throws IllegalAccessException {
-        var params = receiver.getParameters();
-
-        var headerIndices = new HashSet<Integer>();
-        var paramIndices = new HashSet<Integer>();
-        var bodyIndices = new HashSet<Integer>();
-        var otherIndices = new HashSet<Integer>();
-
-        for (int i = 0; i < params.length; i++) {
-            var param = params[i];
-            var name = nameOf(param);
-            var kind = kindOf(param);
-            if ((kind == 0 || kind == 1) && name == null) continue;
-
-            var idx = i + 1;
-            switch (kind) {
-                case 0 -> headerIndices.add(idx);
-                case 1 -> paramIndices.add(idx);
-                case 3 -> bodyIndices.add(idx);
-                case -1 -> otherIndices.add(idx);
-            }
-        }
-
-        var prefixIndices = Set.of(0);
-        Integer[] indices;
-        if (!isStatic(receiver)) {
-            indices = union(
-                    prefixIndices,
-                    headerIndices, paramIndices,
-                    bodyIndices, otherIndices
-            ).toArray(new Integer[0]);
-        } else {
-            indices = union(
-                    headerIndices, paramIndices,
-                    bodyIndices, otherIndices
-            ).toArray(new Integer[0]);
-        }
-
-        var prefix = of(klass);
-        var kind = methodType(receiver.getReturnType(), union(prefix, receiver.getParameterTypes()));
-
-        return MethodHandles.permuteArguments(
-                unreflect(receiver, receiverObj),
-                kind, ArrayUtils.toPrimitive(indices))
-                .bindTo(inst);
+        return unreflect(RouteEndpoint.class
+                        .getDeclaredMethod("wrapper",
+                                ThunkInvoker.class,
+                                String.class, String.class,
+                                Map.class, byte[].class), null)
+                .bindTo(invoker.build())
+                .bindTo(mime);
     }
 }

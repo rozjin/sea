@@ -15,41 +15,20 @@ public class RouteSegment {
     private static final InterpolationLogger logger = InterpolationLogger.getLogger(Ocean.class);
     private static final String logPrefix = "SEG";
 
+    private final String name;
     private final String segment;
     private final Pattern segmentPtrn;
     private final RouteSegment prev;
     private final List<RouteSegment> next;
 
     private RouteEndpoint endpoint;
-    public RouteSegment(String segment) {
-        this.segment = segment;
-        this.segmentPtrn = Pattern.compile(segment);
-        this.prev = null;
-        this.endpoint = null;
-        this.next = new ArrayList<>();
-    }
 
-    public RouteSegment(String segment, Method receiver) {
-        this.segment = segment;
-        this.segmentPtrn = Pattern.compile(segment);
-        this.prev = null;
-        this.endpoint = new RouteEndpoint(this, receiver);
-        this.next = new ArrayList<>();
-    }
-
-    public RouteSegment(String segment, RouteSegment prev) {
+    public RouteSegment(String name, String segment, RouteSegment prev, Method receiver) {
+        this.name = name;
         this.segment = segment;
         this.segmentPtrn = Pattern.compile(segment);
         this.prev = prev;
-        this.endpoint = null;
-        this.next = new ArrayList<>();
-    }
-
-    public RouteSegment(String segment, RouteSegment prev, Method receiver) {
-        this.segment = segment;
-        this.segmentPtrn = Pattern.compile(segment);
-        this.prev = prev;
-        this.endpoint = new RouteEndpoint(this, receiver);
+        this.endpoint = receiver != null ? new RouteEndpoint(this, receiver) : null;
         this.next = new ArrayList<>();
     }
 
@@ -65,9 +44,9 @@ public class RouteSegment {
         return segmentPtrn;
     }
 
-    public RouteSegment leaf(String segment) {
+    public RouteSegment fork(String name, String segment) {
         if (!in(segment, next)) {
-            var node = new RouteSegment(segment, this);
+            var node = new RouteSegment(name, segment, this, null);
             next.add(node);
 
             return node;
@@ -76,10 +55,10 @@ public class RouteSegment {
         return take(segment, next);
     }
 
-    public RouteSegment leaf(String segment,
+    public RouteSegment fork(String name, String segment,
                              Method receiver) {
         if (!in(segment, next)) {
-            var node = new RouteSegment(segment, this, receiver);
+            var node = new RouteSegment(name, segment, this, receiver);
             next.add(node);
 
             return node;
@@ -103,6 +82,10 @@ public class RouteSegment {
             case RouteSegment node -> node.segment.equals(segment);
             default -> false;
         };
+    }
+
+    public boolean nameEquals(String name) {
+        return this.name.equals(name);
     }
 
     private String stringify(RouteSegment node) {
