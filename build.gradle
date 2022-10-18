@@ -1,0 +1,31 @@
+plugins {
+    id 'java'
+}
+
+group 'us.racem'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation 'ch.qos.reload4j:reload4j:1.2.22'
+
+    implementation "com.squareup.okio:okio:3.2.0"
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
+    implementation 'org.reflections:reflections:0.10.2'
+
+    implementation 'com.google.guava:guava:31.1-jre'
+    implementation 'commons-codec:commons-codec:1.15'
+
+    implementation 'com.athaydes.rawhttp:rawhttp-core:2.5.1'
+}
+
+compileJava {
+    options.warnings = false
+    options.deprecation = false
+    options.compilerArgs += ["--enable-preview"]
+}
