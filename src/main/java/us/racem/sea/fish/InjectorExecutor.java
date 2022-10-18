@@ -14,6 +14,7 @@ public class InjectorExecutor extends OceanExecutable {
     private final String main;
     private final Class<? extends AnyInjector>[] injectorClasses;
 
+    @SafeVarargs
     public InjectorExecutor(String main,
                             Class<? extends AnyInjector>... injectorClasses) {
         this.reflector = new Reflections("us.racem.sea.inject");
