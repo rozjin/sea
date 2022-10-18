@@ -1,6 +1,7 @@
 package us.racem.sea.route;
 
 import us.racem.sea.body.Request;
+import us.racem.sea.convert.AnyConverter;
 import us.racem.sea.fish.Ocean;
 import us.racem.sea.body.Response;
 import us.racem.sea.mark.body.Mime;
@@ -27,12 +28,12 @@ public class Router {
     private static final List<RouteSegment> routes = new ArrayList<>();
     private static final Map<String, RouteEndpoint> cache = new HashMap<>();
     private static final Map<Integer, MethodHandle> errors = new HashMap<>();
-    private static final Map<String, String> converters = new HashMap<>();
+    private static final Map<String, AnyConverter<?>> converters = new HashMap<>();
 
     private static final String delimRegexStr = "(?<!^)/{1,2}";
     private static final Pattern delimRegexPtrn = Pattern.compile(delimRegexStr, Pattern.MULTILINE);
 
-    public static Map<String, String> converters() {
+    public static Map<String, AnyConverter<?>> converters() {
         return converters;
     }
 
@@ -40,8 +41,8 @@ public class Router {
         return routes;
     }
 
-    public static void converter(String name, String regex) {
-        converters.put(name, regex);
+    public static void converter(String name, AnyConverter<?> conv) {
+        converters.put(name, conv);
     }
 
     public static void route(String route, Method receiver) {

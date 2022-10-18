@@ -62,8 +62,6 @@ public class SeaServer extends OceanExecutable {
     private void read(Socket cs) {
         try (var is = cs.getInputStream();
              var os = cs.getOutputStream()) {
-            logger.info("%bRequest from {}%", cs.getRemoteSocketAddress());
-
             var reqSize = is.available();
             if (reqSize > max_body_size + max_header_size) throw new IOException("Request too large!");
 
@@ -75,6 +73,8 @@ public class SeaServer extends OceanExecutable {
                     .replaceFirst("^/{1,2}", "");
             var method = RequestMethod.of(req.getMethod());
             var headers = req.getHeaders().asMap();
+
+            logger.info("%bRequest {}%", "/" + path);
 
             byte[] body = null;
             if (req.getBody().isPresent()) {

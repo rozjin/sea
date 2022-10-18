@@ -29,9 +29,8 @@ public class ConverterInjector extends AnyInjector {
                         .getDeclaredConstructor()
                         .newInstance();
                 var name = converterClass.getAnnotation(PathConverter.class).value();
-                var regex = converter.regex();
 
-                Router.converter(name, regex);
+                Router.converter(name, converter);
                 logger.info("Registered Converter: {}", converterClass.getSimpleName());
             } catch (InstantiationException | InvocationTargetException | IllegalAccessException |
                      NoSuchMethodException err) {

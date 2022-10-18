@@ -61,7 +61,7 @@ public class ColoredPatternLayout extends PatternLayout {
 
             var optPos = regex.start("opt");
             if (optPos == -1) {
-                regex.appendReplacement(finalStr, FMT_PREFIX + colorMap.get(color) + FMT_SUFFIX + txt);
+                regex.appendReplacement(finalStr, FMT_PREFIX + colorMap.get(color) + FMT_SUFFIX + txt + RST_SEQ);
                 continue;
             }
 
@@ -82,8 +82,6 @@ public class ColoredPatternLayout extends PatternLayout {
 
             fmtStr.insert(0, FMT_PREFIX);
             fmtStr.append(RST_SEQ);
-
-            System.out.println(RST_SEQ);
 
             var finalFmtStr = Matcher.quoteReplacement(fmtStr.toString());
             regex.appendReplacement(finalStr, finalFmtStr);

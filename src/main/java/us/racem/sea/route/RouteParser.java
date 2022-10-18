@@ -63,7 +63,7 @@ public class RouteParser {
 
         var ptrn = switch (kind) {
             case STRING -> regex.group("PART");
-            case PATTERN -> Router.converters().get(regex.group("KIND"));
+            case PATTERN -> Router.converters().get(regex.group("KIND")).regex();
         };
 
         if (other != null) ptrn = other.ptrn + "(" + ptrn + ")";

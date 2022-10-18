@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.ArrayUtils;
 import us.racem.sea.body.Response;
+import us.racem.sea.convert.AnyConverter;
 import us.racem.sea.fish.Ocean;
 import us.racem.sea.mark.body.*;
 import us.racem.sea.mark.methods.*;
@@ -83,6 +84,14 @@ public class RouteEndpoint {
     private Pattern ptrn(String name) {
         for (var seg: segments) {
             if (seg.nameEquals(name)) return seg.ptrn();
+        }
+
+        return null;
+    }
+
+    private AnyConverter<?> conv(Pattern ptrn) {
+        for (var conv: Router.converters().values()) {
+            if (conv.regex().equals(ptrn.toString())) return conv;
         }
 
         return null;
@@ -200,7 +209,7 @@ public class RouteEndpoint {
             static {
                 try {
                     PARAMETER_THUNK = unreflect(InternalThunks.class.getDeclaredMethod(
-                            "paramThunk", Pattern.class, String.class), null);
+                            "paramThunk", Pattern.class, AnyConverter.class, String.class), null);
                     HEADER_THUNK = unreflect(InternalThunks.class.getDeclaredMethod(
                             "headerThunk", String.class, Map.class), null);
                 } catch (IllegalAccessException | NoSuchMethodException err) {
@@ -208,10 +217,11 @@ public class RouteEndpoint {
                 }
             }
 
-            private static Object paramThunk(Pattern ptrn, String seg) {
+            private static Object paramThunk(Pattern ptrn, AnyConverter<?> conv, String seg) {
                 var regex = ptrn.matcher(seg);
-                regex.find();
-                return regex.group(0);
+                if (!regex.find()) return 0;
+
+                return conv.convert(seg);
             }
 
             private static List<String> headerThunk(String name, Map<String, List<String>> headers) {
@@ -226,13 +236,11 @@ public class RouteEndpoint {
         private List<Thunk> thunks;
         private MethodHandle target;
         private MethodHandle zero;
-        private int count;
         private boolean built;
 
         public ThunkInvoker(MethodHandle target) {
             this.thunks = new ArrayList<>();
             this.target = target;
-            this.count = 0;
             this.built = false;
             this.zero = MethodHandles.constant(Object.class, null);
         }
@@ -241,29 +249,26 @@ public class RouteEndpoint {
             var target = InternalThunks.HEADER_THUNK
                             .bindTo(name);
             thunks.add(new Thunk(-1, target, ThunkKind.HEADER));
-            count++;
             return this;
         }
 
-        public ThunkInvoker param(Pattern ptrn, int pos) {
+        public ThunkInvoker param(Pattern ptrn, AnyConverter<?> conv, int pos) {
             var target = InternalThunks.PARAMETER_THUNK
-                    .bindTo(ptrn);
+                    .bindTo(ptrn)
+                    .bindTo(conv);
             thunks.add(new Thunk(pos, target, ThunkKind.PARAM));
-            count++;
             return this;
         }
 
         public ThunkInvoker body() {
             var target = MethodHandles.identity(byte[].class);
             thunks.add(new Thunk(-1, target, ThunkKind.BODY));
-            count++;
             return this;
         }
 
         public ThunkInvoker zero() {
             var target = zero;
             thunks.add(new Thunk(-1, zero, ThunkKind.ZERO));
-            count++;
             return this;
         }
 
@@ -287,7 +292,7 @@ public class RouteEndpoint {
             if (built) throw new RuntimeException("Thunk has been built!");
             this.built = true;
             this.target = target
-                    .asSpreader(Object[].class, count);
+                    .asSpreader(0, Object[].class, target.type().parameterCount());
             return this;
         }
     }
@@ -367,15 +372,33 @@ public class RouteEndpoint {
             if ((kind == TargetParameterKind.PARAM || kind == TargetParameterKind.HEADER) && name == null) continue;
 
             switch (kind) {
-                case HEADER -> invoker.header(name);
+                case HEADER -> {
+                    if (param.getType() != List.class) {
+                        invoker.zero();
+                        continue;
+                    }
+
+                    invoker.header(name);
+                }
                 case PARAM -> {
                     var pos = pos(name);
                     var ptrn = ptrn(name);
-                    if (pos == -1) continue;
+                    var conv = conv(ptrn);
+                    if (pos == -1 || conv == null) {
+                        invoker.zero();
+                        continue;
+                    }
 
-                    invoker.param(ptrn, pos);
+                    invoker.param(ptrn, conv, pos);
                 }
-                case BODY -> invoker.body();
+                case BODY -> {
+                    if (param.getType() != byte[].class) {
+                        invoker.zero();
+                        continue;
+                    }
+
+                    invoker.body();
+                }
                 case OTHER -> invoker.zero();
             }
         }
