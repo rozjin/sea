@@ -5,32 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="4533ba57-9b39-4dd8-b4a2-7252db0c5eba" name="Changes" comment="routing changes, as well as how segments are handled, and codecs.">
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/resources/reference.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Request.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Response.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/AnyConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/AnyCodec.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/Base64Converter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/Base64Codec.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/NumberConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/NumberCodec.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/StringConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/StringCodec.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/UUIDConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/UUIDCodec.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/InjectorExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/OceanInjector.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/AnyInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/AnyInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/ConverterInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteCodecInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/ErrorMappingInjector.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/mark/methods/ErrorMapping.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/net/SeaServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/net/SeaServer.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteInvoker.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteParser.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteSegment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteSegment.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/Router.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteRegistry.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/util/ArgumentParser.java" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/util/InterpolationLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/util/InterpolationLogger.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteInvoker.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -340,6 +318,7 @@
       <workItem from="1666845899406" duration="191000" />
       <workItem from="1666846189900" duration="16000" />
       <workItem from="1667089794692" duration="1599000" />
+      <workItem from="1667123370763" duration="563000" />
     </task>
     <task id="LOCAL-00001" summary="Thunkery">
       <created>1666085991497</created>

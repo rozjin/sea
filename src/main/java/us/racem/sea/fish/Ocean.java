@@ -10,12 +10,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Ocean {
-    private final ExecutorService executor;
-
-    public Ocean() {
-        this.executor = Executors.newFixedThreadPool(4);
-    }
-
     public static void fill() {
         fill(ConfigFactory.load());
     }

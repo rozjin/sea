@@ -317,6 +317,9 @@ public class RouteInvoker {
             case String sng -> new Response(200,
                     sng.getBytes(StandardCharsets.UTF_8),
                     mime);
+            case byte[] bytes -> new Response(200,
+                    bytes,
+                    mime);
             case default, null -> RouteRegistry.errorOf(path, "Invalid Response from handler.", 500);
         };
     }
