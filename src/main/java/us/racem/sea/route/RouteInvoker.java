@@ -2,9 +2,10 @@ package us.racem.sea.route;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Primitives;
 import org.apache.commons.lang3.ArrayUtils;
 import us.racem.sea.body.Response;
-import us.racem.sea.convert.AnyConverter;
+import us.racem.sea.convert.AnyCodec;
 import us.racem.sea.fish.Ocean;
 import us.racem.sea.mark.body.*;
 import us.racem.sea.mark.methods.*;
@@ -23,11 +24,11 @@ import java.util.*;
 import java.util.regex.Pattern;
 
 import static java.lang.invoke.MethodType.methodType;
-import static us.racem.sea.util.MethodUtils.isStatic;
 import static us.racem.sea.util.MethodUtils.unreflect;
-import static us.racem.sea.util.SetUtils.*;
+import static us.racem.sea.util.SetUtils.of;
+import static us.racem.sea.util.SetUtils.xor;
 
-public class RouteEndpoint {
+public class RouteInvoker {
     private static final ObjectMapper mapper = new ObjectMapper();
     private static final InterpolationLogger logger = InterpolationLogger.getLogger(Ocean.class);
     private static final String logPrefix = "ROU";
@@ -43,7 +44,7 @@ public class RouteEndpoint {
 
     private List<RouteSegment> segments;
 
-    public RouteEndpoint(RouteSegment segment, Method receiver) {
+    public RouteInvoker(RouteSegment segment, Method receiver, Object instance) {
         this.segments = segments(segment);
         this.klass = receiver.getDeclaringClass();
 
@@ -55,21 +56,16 @@ public class RouteEndpoint {
             if (path == null ||
                 methods == null ||
                 mime == null) throw new NoSuchMethodException("Invalid Route");
-            this.inst = klass
-                    .getDeclaredConstructor()
-                    .newInstance();
+            this.inst = instance;
             this.bound = bind(receiver);
-        } catch (NoSuchMethodException | InstantiationException |
-                 IllegalAccessException | InvocationTargetException err) {
+        } catch (NoSuchMethodException |
+                 IllegalAccessException err) {
             logger.info("Failed to Initialise Route {}", receiver);
         }
     }
 
     public boolean handles(RequestMethod method) {
         return ArrayUtils.contains(methods, method);
-    }
-    public MethodHandle bound() {
-        return bound;
     }
 
     private List<RouteSegment> segments(RouteSegment segment) {
@@ -89,8 +85,8 @@ public class RouteEndpoint {
         return null;
     }
 
-    private AnyConverter<?> conv(Pattern ptrn) {
-        for (var conv: Router.converters().values()) {
+    private AnyCodec<?> conv(Pattern ptrn) {
+        for (var conv: RouteRegistry.converters.values()) {
             if (conv.regex().equals(ptrn.toString())) return conv;
         }
 
@@ -184,7 +180,7 @@ public class RouteEndpoint {
         return null;
     }
 
-    private enum TargetParameterKind { HEADER, PARAM, BODY, OTHER };
+    private enum TargetParameterKind { HEADER, PARAM, METHOD, BODY, OTHER };
 
     private TargetParameterKind kindOf(Parameter par) {
         var type = par.getAnnotatedType();
@@ -192,6 +188,7 @@ public class RouteEndpoint {
         var param = type.getAnnotation(NamedParam.class);
         var body = type.getAnnotation(Body.class);
 
+        if (par.getType() == RequestMethod.class) return TargetParameterKind.METHOD;
         if (!xor(header, param, body)) return TargetParameterKind.OTHER;
 
         if (header != null) return TargetParameterKind.HEADER;
@@ -209,7 +206,7 @@ public class RouteEndpoint {
             static {
                 try {
                     PARAMETER_THUNK = unreflect(InternalThunks.class.getDeclaredMethod(
-                            "paramThunk", Pattern.class, AnyConverter.class, String.class), null);
+                            "paramThunk", Pattern.class, AnyCodec.class, String.class), null);
                     HEADER_THUNK = unreflect(InternalThunks.class.getDeclaredMethod(
                             "headerThunk", String.class, Map.class), null);
                 } catch (IllegalAccessException | NoSuchMethodException err) {
@@ -217,32 +214,32 @@ public class RouteEndpoint {
                 }
             }
 
-            private static Object paramThunk(Pattern ptrn, AnyConverter<?> conv, String seg) {
+            private static Object paramThunk(Pattern ptrn, AnyCodec<?> conv, String seg) {
                 var regex = ptrn.matcher(seg);
-                if (!regex.find()) return 0;
+                if (!regex.matches()) return null;
 
-                return conv.convert(seg);
+                return conv.decode(regex.group());
             }
 
-            private static List<String> headerThunk(String name, Map<String, List<String>> headers) {
+            private static Object headerThunk(String name, Map<String, List<String>> headers) {
                 if (headers == null) return null;
-                return headers.get(name);
+                var res = headers.get(name);
+                if (res.size() == 1) return res.get(0);
+                return res;
             }
         }
 
-        private enum ThunkKind { PARAM, HEADER, BODY, ZERO };
+        private enum ThunkKind { PARAM, METHOD, HEADER, BODY, ZERO }
 
         private record Thunk(int pos, MethodHandle target, ThunkKind kind) {}
         private List<Thunk> thunks;
         private MethodHandle target;
-        private MethodHandle zero;
         private boolean built;
 
         public ThunkInvoker(MethodHandle target) {
             this.thunks = new ArrayList<>();
             this.target = target;
             this.built = false;
-            this.zero = MethodHandles.constant(Object.class, null);
         }
 
         public ThunkInvoker header(String name) {
@@ -252,11 +249,17 @@ public class RouteEndpoint {
             return this;
         }
 
-        public ThunkInvoker param(Pattern ptrn, AnyConverter<?> conv, int pos) {
+        public ThunkInvoker param(Pattern ptrn, AnyCodec<?> conv, int pos) {
             var target = InternalThunks.PARAMETER_THUNK
                     .bindTo(ptrn)
                     .bindTo(conv);
             thunks.add(new Thunk(pos, target, ThunkKind.PARAM));
+            return this;
+        }
+
+        public ThunkInvoker method() {
+            var target = MethodHandles.identity(RequestMethod.class);
+            thunks.add(new Thunk(-1, target, ThunkKind.METHOD));
             return this;
         }
 
@@ -266,19 +269,24 @@ public class RouteEndpoint {
             return this;
         }
 
-        public ThunkInvoker zero() {
-            var target = zero;
-            thunks.add(new Thunk(-1, zero, ThunkKind.ZERO));
+        public ThunkInvoker zero(Class<?> kind) {
+            var wrappedKind = Primitives.wrap(kind);
+            var isNumeric = Number.class.isAssignableFrom(wrappedKind);
+
+            thunks.add(new Thunk(-1,
+                    MethodHandles.constant(kind, isNumeric ? -1 : null),
+                    ThunkKind.ZERO));
             return this;
         }
 
-        public Object invoke(String path, Map<String, List<String>> headers, byte[] body) throws Throwable {
+        public Object invoke(String path, RequestMethod method, Map<String, List<String>> headers, byte[] body) throws Throwable {
             var parts = path.split("/{1,2}");
             var res = new ArrayList<>();
 
             for (var thunk : thunks) {
                 res.add(switch (thunk.kind) {
                     case HEADER -> thunk.target.invoke(headers);
+                    case METHOD -> thunk.target.invoke(method);
                     case PARAM -> thunk.target.invoke(parts[thunk.pos]);
                     case BODY -> thunk.target.invoke(body);
                     case ZERO -> thunk.target.invoke();
@@ -297,65 +305,19 @@ public class RouteEndpoint {
         }
     }
 
-    private static <T> T[] dup(int n, T val) {
-        var arr = new Object[n];
-        Arrays.fill(arr, val);
-        return (T[]) arr;
-    }
-
     private static Response wrapper(ThunkInvoker invoker,
                                     String mime,
-                                    String path,
+                                    String path, RequestMethod method,
                                     Map<String, List<String>> headers,
                                     byte[] body)
             throws Throwable {
-
-        var obj = invoker.invoke(path, headers, body);
+        var obj = invoker.invoke(path, method, headers, body);
         return switch (obj) {
-            case Response rsp -> {
-                var bytes = switch (mime) {
-                    case Mime.Plain, Mime.HTML -> switch (rsp.body) {
-                        case String sng -> sng.getBytes(StandardCharsets.UTF_8);
-                        case default, null -> null;
-                    };
-
-                    case Mime.JSON -> mapper
-                            .writeValueAsString(rsp.body)
-                            .getBytes(StandardCharsets.UTF_8);
-
-                    case default, Mime.Binary -> switch (rsp.body) {
-                        case byte[] $ -> $;
-                        case default, null -> null;
-                    };
-                };
-
-                yield Response.from(rsp.status, bytes, rsp.mime, rsp.headers);
-            }
-
-            default -> {
-                var bytes = switch (mime) {
-                    case Mime.Plain, Mime.HTML -> switch (obj) {
-                        case String sng -> sng.getBytes(StandardCharsets.UTF_8);
-                        case default -> null;
-                    };
-
-                    case Mime.JSON -> mapper
-                            .writeValueAsString(obj)
-                            .getBytes(StandardCharsets.UTF_8);
-
-                    case default, Mime.Binary -> switch (obj) {
-                        case byte[] $ -> $;
-                        case default -> null;
-                    };
-                };
-
-                yield Response.of(200, bytes, mime);
-            }
-
-            case null -> {
-                logger.info("No response! {}", path);
-                yield Response.of(500, "{}", Mime.JSON);
-            }
+            case Response rsp -> rsp;
+            case String sng -> new Response(200,
+                    sng.getBytes(StandardCharsets.UTF_8),
+                    mime);
+            case default, null -> RouteRegistry.errorOf(path, "Invalid Response from handler.", 500);
         };
     }
 
@@ -373,8 +335,9 @@ public class RouteEndpoint {
 
             switch (kind) {
                 case HEADER -> {
-                    if (param.getType() != List.class) {
-                        invoker.zero();
+                    if (param.getType() != List.class &&
+                        param.getType() != String.class) {
+                        invoker.zero(param.getType());
                         continue;
                     }
 
@@ -383,32 +346,53 @@ public class RouteEndpoint {
                 case PARAM -> {
                     var pos = pos(name);
                     var ptrn = ptrn(name);
+                    if (ptrn ==  null) {
+                        invoker.zero(param.getType());
+                        continue;
+                    }
+
                     var conv = conv(ptrn);
                     if (pos == -1 || conv == null) {
-                        invoker.zero();
+                        invoker.zero(param.getType());
                         continue;
                     }
 
                     invoker.param(ptrn, conv, pos);
                 }
+                case METHOD -> {
+                    if (param.getType() != RequestMethod.class) {
+                        invoker.zero(param.getType());
+                        continue;
+                    }
+
+                    invoker.method();
+                }
                 case BODY -> {
                     if (param.getType() != byte[].class) {
-                        invoker.zero();
+                        invoker.zero(param.getType());
                         continue;
                     }
 
                     invoker.body();
                 }
-                case OTHER -> invoker.zero();
+                case OTHER -> invoker.zero(param.getType());
             }
         }
 
-        return unreflect(RouteEndpoint.class
+        return unreflect(RouteInvoker.class
                         .getDeclaredMethod("wrapper",
                                 ThunkInvoker.class,
-                                String.class, String.class,
+                                String.class,
+                                String.class, RequestMethod.class,
                                 Map.class, byte[].class), null)
                 .bindTo(invoker.build())
                 .bindTo(mime);
+    }
+
+    public Response invoke(String path,
+                           RequestMethod method,
+                           Map<String, List<String>> headers,
+                           byte[] body) throws Throwable {
+        return (Response) bound.invoke(path, method, headers, body);
     }
 }

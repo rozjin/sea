@@ -1,14 +1,16 @@
 package us.racem.sea.inject;
 
-import org.reflections.scanners.Scanners;
 import us.racem.sea.fish.Ocean;
 import us.racem.sea.mark.methods.*;
-import us.racem.sea.route.Router;
+import us.racem.sea.route.RouteRegistry;
 import us.racem.sea.util.InterpolationLogger;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.Set;
 
+import static org.reflections.scanners.Scanners.*;
 import static us.racem.sea.util.SetUtils.union;
 import static us.racem.sea.util.SetUtils.xor;
 
@@ -16,8 +18,8 @@ public class RouteMappingInjector extends AnyInjector {
     private static final InterpolationLogger logger = InterpolationLogger.getLogger(Ocean.class);
     private static final String logPrefix = "PTH";
 
-    public RouteMappingInjector(String main) {
-        super(main, Scanners.TypesAnnotated, Scanners.SubTypes, Scanners.MethodsAnnotated);
+    public RouteMappingInjector(String prefix) {
+        super(prefix, TypesAnnotated, SubTypes, MethodsAnnotated);
     }
 
     private Set<Method> find() {
@@ -57,13 +59,29 @@ public class RouteMappingInjector extends AnyInjector {
     @Override
     public void inject() {
         var receivers = find();
+        var instances = new HashMap<Class<?>, Object>();
         logger.info("Methods: {}", receivers);
 
         for (var receiver: receivers) {
-            var route = path(receiver);
+            try {
+                var route = path(receiver);
+                var instance = instances.computeIfAbsent(receiver.getDeclaringClass(), ($) -> {
+                    try {
+                        return receiver.getDeclaringClass()
+                                .getDeclaredConstructor()
+                                .newInstance();
+                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
+                             NoSuchMethodException err) {
+                        throw new RuntimeException(err);
+                    }
+                });
 
-            Router.route(route, receiver);
-            logger.info("Registered Route: {}", route);
+
+                RouteRegistry.register(route, receiver, instance);
+                logger.info("Registered Route: {}", route);
+            } catch (Exception err) {
+                logger.warn("Failed to register Route: {}", err);
+            }
         }
     }
 }

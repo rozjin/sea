@@ -6,19 +6,17 @@ import us.racem.sea.util.InterpolationLogger;
 
 import java.lang.reflect.InvocationTargetException;
 
-public class InjectorExecutor extends OceanExecutable {
+public class OceanInjector extends OceanExecutable {
     private static final InterpolationLogger logger = InterpolationLogger.getLogger(Ocean.class);
     private static final String logPrefix = "INJ";
 
-    private final Reflections reflector;
     private final String main;
     private final Class<? extends AnyInjector>[] injectorClasses;
 
     @SafeVarargs
-    public InjectorExecutor(String main,
-                            Class<? extends AnyInjector>... injectorClasses) {
-        this.reflector = new Reflections("us.racem.sea.inject");
-        this.main = main;
+    public OceanInjector(String prefix,
+                         Class<? extends AnyInjector>... injectorClasses) {
+        this.main = prefix;
         this.injectorClasses = injectorClasses;
     }
 

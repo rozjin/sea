@@ -4,8 +4,33 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4533ba57-9b39-4dd8-b4a2-7252db0c5eba" name="Changes" comment="Converter system changes.">
+    <list default="true" id="4533ba57-9b39-4dd8-b4a2-7252db0c5eba" name="Changes" comment="routing changes, as well as how segments are handled, and codecs.">
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/reference.conf" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/settings.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/settings.gradle" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Request.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Request.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Response.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/body/Response.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/AnyConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/AnyCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/Base64Converter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/Base64Codec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/NumberConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/NumberCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/StringConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/StringCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/UUIDConverter.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/convert/UUIDCodec.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/InjectorExecutor.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/OceanInjector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/AnyInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/AnyInjector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/ConverterInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteCodecInjector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/ErrorMappingInjector.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/mark/methods/ErrorMapping.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/net/SeaServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/net/SeaServer.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteEndpoint.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteInvoker.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteParser.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteParser.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteSegment.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteSegment.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/Router.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteRegistry.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/util/ArgumentParser.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/util/InterpolationLogger.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/util/InterpolationLogger.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -20,12 +45,32 @@
   <component name="ExternalProjectsManager">
     <system id="GRADLE">
       <state>
+        <task path="$PROJECT_DIR$">
+          <activation />
+        </task>
         <projects_view>
           <tree_state>
             <expand>
               <path>
                 <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
-                <item name="bezos" type="f1a62948:ProjectNode" />
+                <item name="sea" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="sea" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="sea" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="build" type="c8890929:TasksNode$1" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="sea" type="f1a62948:ProjectNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="publishing" type="c8890929:TasksNode$1" />
               </path>
             </expand>
             <select />
@@ -47,7 +92,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="master" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -56,22 +101,26 @@
     <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectId" id="2EWQa7BEoLZTyoUlxS7LTYbgNAJ" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
   <component name="PropertiesComponent">{
   &quot;keyToString&quot;: {
+    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
     &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/racemus/IdeaProjects/bezos/src/main/resources&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/home/racemus/IdeaProjects/sea&quot;,
     &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
     &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
     &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.0&quot;
+    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
   }
 }</component>
   <component name="RecentsManager">
@@ -90,15 +139,82 @@
       <recent name="us.racem.bezos.mark.body" />
     </key>
   </component>
-  <component name="RunManager">
-    <configuration name="Run Bezos" type="Application" factoryName="Application">
-      <option name="MAIN_CLASS_NAME" value="us.racem.sea.Main" />
-      <module name="bezos.main" />
-      <option name="VM_PARAMETERS" value="--enable-preview" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
+  <component name="RunManager" selected="Gradle.bezos [publish]">
+    <configuration name="bezos [build]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="build" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
     </configuration>
+    <configuration name="bezos [publish]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" value="" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="publish" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <configuration name="bezos [shadowJar]" type="GradleRunConfiguration" factoryName="Gradle" temporary="true">
+      <ExternalSystemSettings>
+        <option name="executionName" />
+        <option name="externalProjectPath" value="$PROJECT_DIR$" />
+        <option name="externalSystemIdString" value="GRADLE" />
+        <option name="scriptParameters" />
+        <option name="taskDescriptions">
+          <list />
+        </option>
+        <option name="taskNames">
+          <list>
+            <option value="shadowJar" />
+          </list>
+        </option>
+        <option name="vmOptions" />
+      </ExternalSystemSettings>
+      <ExternalSystemDebugServerProcess>true</ExternalSystemDebugServerProcess>
+      <ExternalSystemReattachDebugProcess>true</ExternalSystemReattachDebugProcess>
+      <DebugAllEnabled>false</DebugAllEnabled>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Gradle.bezos [build]" />
+      <item itemvalue="Gradle.bezos [publish]" />
+      <item itemvalue="Gradle.bezos [shadowJar]" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Gradle.bezos [publish]" />
+        <item itemvalue="Gradle.bezos [build]" />
+        <item itemvalue="Gradle.bezos [shadowJar]" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -177,7 +293,53 @@
       <workItem from="1665997531478" duration="2170000" />
       <workItem from="1666042473585" duration="31249000" />
       <workItem from="1666074297192" duration="78000" />
-      <workItem from="1666074389633" duration="18050000" />
+      <workItem from="1666074389633" duration="24283000" />
+      <workItem from="1666206627139" duration="4654000" />
+      <workItem from="1666220973671" duration="7066000" />
+      <workItem from="1666242042991" duration="20000" />
+      <workItem from="1666242321936" duration="51000" />
+      <workItem from="1666317495486" duration="654000" />
+      <workItem from="1666484459817" duration="267000" />
+      <workItem from="1666485490699" duration="1417000" />
+      <workItem from="1666518602685" duration="6000" />
+      <workItem from="1666518658282" duration="116000" />
+      <workItem from="1666553947985" duration="1384000" />
+      <workItem from="1666556672079" duration="3399000" />
+      <workItem from="1666563673000" duration="2272000" />
+      <workItem from="1666679658927" duration="950000" />
+      <workItem from="1666680620109" duration="522000" />
+      <workItem from="1666685099129" duration="2597000" />
+      <workItem from="1666741961449" duration="782000" />
+      <workItem from="1666751106153" duration="31000" />
+      <workItem from="1666751610694" duration="13000" />
+      <workItem from="1666769774434" duration="1618000" />
+      <workItem from="1666772346000" duration="72000" />
+      <workItem from="1666775025600" duration="174000" />
+      <workItem from="1666776104409" duration="129000" />
+      <workItem from="1666778063323" duration="28000" />
+      <workItem from="1666778136417" duration="1307000" />
+      <workItem from="1666779499551" duration="152000" />
+      <workItem from="1666780226728" duration="25000" />
+      <workItem from="1666780535915" duration="2820000" />
+      <workItem from="1666784722439" duration="8000" />
+      <workItem from="1666784741280" duration="205000" />
+      <workItem from="1666785467715" duration="286000" />
+      <workItem from="1666786116751" duration="63000" />
+      <workItem from="1666786185525" duration="1027000" />
+      <workItem from="1666818828083" duration="120000" />
+      <workItem from="1666822942863" duration="3257000" />
+      <workItem from="1666827237970" duration="93000" />
+      <workItem from="1666827398883" duration="2553000" />
+      <workItem from="1666830500154" duration="226000" />
+      <workItem from="1666830840013" duration="438000" />
+      <workItem from="1666832142400" duration="294000" />
+      <workItem from="1666832999194" duration="153000" />
+      <workItem from="1666839237208" duration="1084000" />
+      <workItem from="1666840598661" duration="1370000" />
+      <workItem from="1666843627405" duration="2217000" />
+      <workItem from="1666845899406" duration="191000" />
+      <workItem from="1666846189900" duration="16000" />
+      <workItem from="1667089794692" duration="1599000" />
     </task>
     <task id="LOCAL-00001" summary="Thunkery">
       <created>1666085991497</created>
@@ -200,11 +362,28 @@
       <option name="project" value="LOCAL" />
       <updated>1666092535559</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="mark safevarargs for injector constructor">
+      <created>1666093019339</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1666093019339</updated>
+    </task>
+    <task id="LOCAL-00005" summary="add licence">
+      <created>1666093101345</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1666093101345</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName="*.conf" />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
     <option name="TAB_STATES">
@@ -218,9 +397,13 @@
     </option>
   </component>
   <component name="VcsManagerConfiguration">
+    <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Thunkery" />
     <MESSAGE value="Thunk fixes finished." />
     <MESSAGE value="Converter system changes." />
-    <option name="LAST_COMMIT_MESSAGE" value="Converter system changes." />
+    <MESSAGE value="mark safevarargs for injector constructor" />
+    <MESSAGE value="add licence" />
+    <MESSAGE value="routing changes, as well as how segments are handled, and codecs." />
+    <option name="LAST_COMMIT_MESSAGE" value="routing changes, as well as how segments are handled, and codecs." />
   </component>
 </project>

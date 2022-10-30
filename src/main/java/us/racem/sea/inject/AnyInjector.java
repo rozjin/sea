@@ -4,9 +4,9 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 
 public abstract class AnyInjector {
-    public final Reflections reflector;
-    public AnyInjector(String main, Scanners... scanners) {
-        this.reflector = new Reflections(main, scanners);
+    public Reflections reflector;
+    public AnyInjector(String prefix, Scanners... scanners) {
+        this.reflector = new Reflections(prefix, scanners);
     }
 
     public abstract void inject();

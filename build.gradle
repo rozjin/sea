@@ -1,19 +1,25 @@
 plugins {
-    id 'java'
+    id 'java-library'
+    id 'maven-publish'
+    id 'signing'
 }
 
+archivesBaseName = "sea"
+
 group 'us.racem'
-version '1.0-SNAPSHOT'
+version '1.1.2'
+description "Sea is a lightweight java library for building microservices"
 
 repositories {
     mavenCentral()
 }
 
 dependencies {
-    implementation 'ch.qos.reload4j:reload4j:1.2.22'
+    api 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
+    api 'com.typesafe:config:1.4.2'
 
+    implementation 'ch.qos.reload4j:reload4j:1.2.22'
     implementation "com.squareup.okio:okio:3.2.0"
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.14.0-rc1'
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
     implementation 'org.reflections:reflections:0.10.2'
@@ -28,4 +34,95 @@ compileJava {
     options.warnings = false
     options.deprecation = false
     options.compilerArgs += ["--enable-preview"]
+}
+
+javadoc.options {
+    addBooleanOption('-enable-preview', true)
+    addStringOption('-release', '19')
+}
+
+task sourcesJar(type: Jar, dependsOn: classes) {
+    from sourceSets.main.allSource
+    classifier "sources"
+    extension "jar"
+}
+
+task javadocJar(type: Jar) {
+    classifier "javadoc"
+    from javadoc
+}
+
+jar {
+    manifest {
+        attributes 'Implementation-Version': version,
+                   'Implementation-Name': 'Sea',
+                   'Implementation-Vendor': 'Racemus',
+                   'Autmatic-Module-Name': 'sea.core'
+    }
+}
+
+java {
+    withJavadocJar()
+    withSourcesJar()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            artifactId = 'sea'
+            from components.java
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage( 'java-runtime' ) {
+                    fromResolutionResult()
+                }
+            }
+
+            pom {
+                inceptionYear = '2022'
+                name = project.name
+                packaging = 'jar'
+                description = project.description
+
+                url = 'https://github.com/rozjin/sea'
+
+                scm {
+                    connection = 'git@github.com:rozjin/sea.git'
+                    developerConnection = 'git@github.com:rozjin/sea.git'
+                    url = 'https://github.com/rozjin/sea'
+                }
+
+                licenses {
+                    license {
+                        name = 'The MIT License'
+                        url = 'https://opensource.org/licenses/MIT'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'racemus'
+                        name = 'racemus'
+                        email = 'admin@racem.us'
+                    }
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            url "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+            credentials {
+                username project.properties[ 'ossrhUsername' ]?.toString()
+                password project.properties[ 'ossrhPassword' ]?.toString()
+            }
+        }
+    }
+}
+
+signing {
+    sign publishing.publications.mavenJava
 }
