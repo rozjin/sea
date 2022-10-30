@@ -1,11 +1,10 @@
 package us.racem.sea.fish;
 
-import us.racem.sea.inject.ConverterInjector;
-import us.racem.sea.inject.ErrorMappingInjector;
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import us.racem.sea.inject.RouteCodecInjector;
 import us.racem.sea.inject.RouteMappingInjector;
 import us.racem.sea.net.SeaServer;
-import us.racem.sea.route.Router;
-import us.racem.sea.util.ArgumentParser;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,14 +16,21 @@ public class Ocean {
         this.executor = Executors.newFixedThreadPool(4);
     }
 
-    public void main(String[] arr) {
-        var args = ArgumentParser.parse(arr);
-        var main = args.getOrDefault("main", "us.racem.sea");
+    public static void fill() {
+        fill(ConfigFactory.load());
+    }
 
-        var server = new SeaServer(8080);
-        var injector = new InjectorExecutor(main,
-                ConverterInjector.class,
-                ErrorMappingInjector.class,
+    public static void fill(Config config) {
+        config.checkValid(ConfigFactory.defaultReference(), "sea");
+        var prefix = config.getString("sea.prefix");
+        var port = config.getInt("sea.port");
+
+        var max_header_size = config.getInt("sea.max_header_size");
+        var max_body_size = config.getInt("sea.max_body_size");
+
+        var server = new SeaServer(port, max_body_size, max_header_size);
+        var injector = new OceanInjector(prefix,
+                RouteCodecInjector.class,
                 RouteMappingInjector.class);
 
         injector.run();

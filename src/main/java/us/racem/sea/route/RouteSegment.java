@@ -21,14 +21,14 @@ public class RouteSegment {
     private final RouteSegment prev;
     private final List<RouteSegment> next;
 
-    private RouteEndpoint endpoint;
+    private RouteInvoker endpoint;
 
-    public RouteSegment(String name, String segment, RouteSegment prev, Method receiver) {
+    public RouteSegment(String name, String segment, RouteSegment prev, Method receiver, Object instance) {
         this.name = name;
         this.segment = segment;
         this.segmentPtrn = Pattern.compile(segment);
         this.prev = prev;
-        this.endpoint = receiver != null ? new RouteEndpoint(this, receiver) : null;
+        this.endpoint = receiver != null ? new RouteInvoker(this, receiver, instance) : null;
         this.next = new ArrayList<>();
     }
 
@@ -46,7 +46,7 @@ public class RouteSegment {
 
     public RouteSegment fork(String name, String segment) {
         if (!in(segment, next)) {
-            var node = new RouteSegment(name, segment, this, null);
+            var node = new RouteSegment(name, segment, this, null, null);
             next.add(node);
 
             return node;
@@ -55,24 +55,12 @@ public class RouteSegment {
         return take(segment, next);
     }
 
-    public RouteSegment fork(String name, String segment,
-                             Method receiver) {
-        if (!in(segment, next)) {
-            var node = new RouteSegment(name, segment, this, receiver);
-            next.add(node);
-
-            return node;
-        }
-
-        return take(segment, next);
-    }
-
-    public RouteEndpoint bound() {
+    public RouteInvoker bound() {
         return endpoint;
     }
 
-    public void bind(Method receiver) {
-        this.endpoint = new RouteEndpoint(this, receiver);
+    public void bind(Method receiver, Object instance) {
+        this.endpoint = new RouteInvoker(this, receiver, instance);
     }
 
     @Override
