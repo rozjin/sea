@@ -16,6 +16,7 @@ import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -61,6 +62,13 @@ public class SeaServer extends OceanExecutable {
         }
     }
 
+    private boolean hasBody(RequestMethod method) {
+        return switch (method) {
+            case POST, PUT, PATCH -> true;
+            default -> false;
+        };
+    }
+
     private void read(Socket cs) {
         try (var is = cs.getInputStream();
              var os = cs.getOutputStream()) {
@@ -79,7 +87,7 @@ public class SeaServer extends OceanExecutable {
             logger.info("%bRequest {}%", "/" + path);
 
             byte[] body = null;
-            if (req.getBody().isPresent()) {
+            if (hasBody(method) && req.getBody().isPresent()) {
                 var bodyReader = req.getBody().get();
                 if (bodyReader.getLengthIfKnown().isPresent() &&
                     bodyReader.getLengthIfKnown().getAsLong() > max_body_size) {

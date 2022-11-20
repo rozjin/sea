@@ -4,10 +4,13 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4533ba57-9b39-4dd8-b4a2-7252db0c5eba" name="Changes" comment="routing changes, as well as how segments are handled, and codecs.">
+    <list default="true" id="4533ba57-9b39-4dd8-b4a2-7252db0c5eba" name="Changes" comment="support byte[] in handler return">
+      <change afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/mark/methods/RequestPrefix.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/net/SeaServer.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/net/SeaServer.java" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteInvoker.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/route/RouteInvoker.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -62,8 +65,8 @@
       <list>
         <option value="Interface" />
         <option value="Enum" />
-        <option value="AnnotationType" />
         <option value="Class" />
+        <option value="AnnotationType" />
       </list>
     </option>
   </component>
@@ -86,21 +89,21 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ASKED_ADD_EXTERNAL_FILES&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;last_opened_file_path&quot;: &quot;/home/racemus/IdeaProjects/sea&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;project.structure.last.edited&quot;: &quot;Modules&quot;,
-    &quot;project.structure.proportion&quot;: &quot;0.0&quot;,
-    &quot;project.structure.side.proportion&quot;: &quot;0.2&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ASKED_ADD_EXTERNAL_FILES": "true",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "SHARE_PROJECT_CONFIGURATION_FILES": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "last_opened_file_path": "/home/racemus/IdeaProjects/sea",
+    "nodejs_package_manager_path": "npm",
+    "project.structure.last.edited": "Modules",
+    "project.structure.proportion": "0.171875",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "reference.projectsettings.compiler.rmicompiler"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CreateClassDialog.RecentsKey">
       <recent name="us.racem.bezos.path.terms" />
@@ -319,6 +322,16 @@
       <workItem from="1666846189900" duration="16000" />
       <workItem from="1667089794692" duration="1599000" />
       <workItem from="1667123370763" duration="563000" />
+      <workItem from="1667124113671" duration="210000" />
+      <workItem from="1667177043663" duration="9000" />
+      <workItem from="1667179968932" duration="389000" />
+      <workItem from="1667181880798" duration="6000" />
+      <workItem from="1667182061787" duration="38000" />
+      <workItem from="1667285515623" duration="699000" />
+      <workItem from="1667287177929" duration="149000" />
+      <workItem from="1667451273803" duration="768000" />
+      <workItem from="1668730057287" duration="130000" />
+      <workItem from="1668730206638" duration="853000" />
     </task>
     <task id="LOCAL-00001" summary="Thunkery">
       <created>1666085991497</created>
@@ -355,7 +368,14 @@
       <option name="project" value="LOCAL" />
       <updated>1666093101345</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="support byte[] in handler return">
+      <created>1667124199880</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1667124199880</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -383,6 +403,7 @@
     <MESSAGE value="mark safevarargs for injector constructor" />
     <MESSAGE value="add licence" />
     <MESSAGE value="routing changes, as well as how segments are handled, and codecs." />
-    <option name="LAST_COMMIT_MESSAGE" value="routing changes, as well as how segments are handled, and codecs." />
+    <MESSAGE value="support byte[] in handler return" />
+    <option name="LAST_COMMIT_MESSAGE" value="support byte[] in handler return" />
   </component>
 </project>

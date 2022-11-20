@@ -202,13 +202,15 @@ public class RouteInvoker {
         private static class InternalThunks {
             public static final MethodHandle PARAMETER_THUNK;
             public static final MethodHandle HEADER_THUNK;
-
+            public static final MethodHandle BODY_THUNK;
             static {
                 try {
                     PARAMETER_THUNK = unreflect(InternalThunks.class.getDeclaredMethod(
                             "paramThunk", Pattern.class, AnyCodec.class, String.class), null);
                     HEADER_THUNK = unreflect(InternalThunks.class.getDeclaredMethod(
                             "headerThunk", String.class, Map.class), null);
+                    BODY_THUNK = unreflect(InternalThunks.class.getDeclaredMethod(
+                            "bodyThunk", byte[].class), null);
                 } catch (IllegalAccessException | NoSuchMethodException err) {
                     throw new RuntimeException(err);
                 }
@@ -226,6 +228,10 @@ public class RouteInvoker {
                 var res = headers.get(name);
                 if (res.size() == 1) return res.get(0);
                 return res;
+            }
+
+            private static String bodyThunk(byte[] body) {
+                return new String(body, StandardCharsets.UTF_8);
             }
         }
 
@@ -263,8 +269,10 @@ public class RouteInvoker {
             return this;
         }
 
-        public ThunkInvoker body() {
-            var target = MethodHandles.identity(byte[].class);
+        public ThunkInvoker body(Class<?> kind) {
+            var target = kind == String.class ?
+                    InternalThunks.BODY_THUNK :
+                    MethodHandles.identity(byte[].class);
             thunks.add(new Thunk(-1, target, ThunkKind.BODY));
             return this;
         }
@@ -371,12 +379,13 @@ public class RouteInvoker {
                     invoker.method();
                 }
                 case BODY -> {
-                    if (param.getType() != byte[].class) {
+                    if (param.getType() != byte[].class &&
+                        param.getType() != String.class) {
                         invoker.zero(param.getType());
                         continue;
                     }
 
-                    invoker.body();
+                    invoker.body(param.getType());
                 }
                 case OTHER -> invoker.zero(param.getType());
             }

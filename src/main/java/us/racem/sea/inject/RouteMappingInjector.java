@@ -56,6 +56,13 @@ public class RouteMappingInjector extends AnyInjector {
         throw new RuntimeException("Unreachable!");
     }
 
+    private String prefix(Method receiver) {
+        var klass = receiver.getDeclaringClass();
+        var prefix = klass.getAnnotation(RequestPrefix.class);
+        if (prefix != null) return prefix.value();
+        return "";
+    }
+
     @Override
     public void inject() {
         var receivers = find();
@@ -64,7 +71,8 @@ public class RouteMappingInjector extends AnyInjector {
 
         for (var receiver: receivers) {
             try {
-                var route = path(receiver);
+                var prefix = prefix(receiver);
+                var route = prefix + path(receiver);
                 var instance = instances.computeIfAbsent(receiver.getDeclaringClass(), ($) -> {
                     try {
                         return receiver.getDeclaringClass()
