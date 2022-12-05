@@ -28,6 +28,8 @@ dependencies {
     implementation 'commons-codec:commons-codec:1.15'
 
     implementation 'com.athaydes.rawhttp:rawhttp-core:2.5.1'
+
+    implementation 'com.google.inject:guice:5.1.0'
 }
 
 compileJava {

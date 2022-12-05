@@ -1,8 +1,8 @@
 package us.racem.sea.convert;
 
-import us.racem.sea.mark.inject.PathConverter;
+import us.racem.sea.mark.inject.Codec;
 
-@PathConverter("num")
+@Codec("num")
 public class NumberCodec extends AnyCodec<Long> {
     public NumberCodec() {
         super("\\d+");

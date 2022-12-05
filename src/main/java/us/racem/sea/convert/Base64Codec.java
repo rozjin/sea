@@ -1,9 +1,9 @@
 package us.racem.sea.convert;
 
 import org.apache.commons.codec.binary.Base64;
-import us.racem.sea.mark.inject.PathConverter;
+import us.racem.sea.mark.inject.Codec;
 
-@PathConverter("base64")
+@Codec("base64")
 public class Base64Codec extends AnyCodec<byte[]> {
     public Base64Codec() {
         super("(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?");

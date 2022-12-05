@@ -73,17 +73,7 @@ public class RouteMappingInjector extends AnyInjector {
             try {
                 var prefix = prefix(receiver);
                 var route = prefix + path(receiver);
-                var instance = instances.computeIfAbsent(receiver.getDeclaringClass(), ($) -> {
-                    try {
-                        return receiver.getDeclaringClass()
-                                .getDeclaredConstructor()
-                                .newInstance();
-                    } catch (InstantiationException | IllegalAccessException | InvocationTargetException |
-                             NoSuchMethodException err) {
-                        throw new RuntimeException(err);
-                    }
-                });
-
+                var instance = instances.computeIfAbsent(receiver.getDeclaringClass(), ($) -> injector.getInstance(receiver.getDeclaringClass()));
 
                 RouteRegistry.register(route, receiver, instance);
                 logger.info("Registered Route: {}", route);

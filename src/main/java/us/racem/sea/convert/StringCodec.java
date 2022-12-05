@@ -1,8 +1,8 @@
 package us.racem.sea.convert;
 
-import us.racem.sea.mark.inject.PathConverter;
+import us.racem.sea.mark.inject.Codec;
 
-@PathConverter("string")
+@Codec("string")
 public class StringCodec extends AnyCodec<String> {
     public StringCodec() {
         super("[^/&=]");

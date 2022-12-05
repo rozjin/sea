@@ -1,10 +1,10 @@
 package us.racem.sea.convert;
 
-import us.racem.sea.mark.inject.PathConverter;
+import us.racem.sea.mark.inject.Codec;
 
 import java.util.UUID;
 
-@PathConverter("uuid")
+@Codec("uuid")
 public class UUIDCodec extends AnyCodec<UUID> {
     public UUIDCodec() {
         super("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}");

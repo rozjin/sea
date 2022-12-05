@@ -4,7 +4,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ConfigurationBuilder;
 import us.racem.sea.convert.AnyCodec;
 import us.racem.sea.fish.Ocean;
-import us.racem.sea.mark.inject.PathConverter;
+import us.racem.sea.mark.inject.Codec;
 import us.racem.sea.route.RouteRegistry;
 import us.racem.sea.util.InterpolationLogger;
 
@@ -25,20 +25,20 @@ public class RouteCodecInjector extends AnyInjector {
 
     @Override
     public void inject() {
-        var converterClasses = reflector
+        var codecs = reflector
                 .getSubTypesOf(AnyCodec.class)
-                .stream().filter(convertClass -> convertClass.isAnnotationPresent(PathConverter.class))
+                .stream().filter(convertClass -> convertClass.isAnnotationPresent(Codec.class))
                 .toList();
 
-        for (var converterClass: converterClasses) {
+        for (var clazz: codecs) {
             try {
-                var converter = converterClass
+                var codec = clazz
                         .getDeclaredConstructor()
                         .newInstance();
-                var name = converterClass.getAnnotation(PathConverter.class).value();
+                var name = clazz.getAnnotation(Codec.class).value();
 
-                RouteRegistry.register(name, converter);
-                logger.info("Registered Converter: {}", converterClass.getSimpleName());
+                RouteRegistry.register(name, codec);
+                logger.info("Registered Converter: {}", clazz.getSimpleName());
             } catch (InstantiationException | InvocationTargetException | IllegalAccessException |
                      NoSuchMethodException err) {
                 logger.warn("Failed to Initialize Converter: {}", err);
