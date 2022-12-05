@@ -7,7 +7,7 @@ plugins {
 archivesBaseName = "sea"
 
 group 'us.racem'
-version '1.1.8'
+version '1.1.9'
 description "Sea is a lightweight java library for building microservices"
 
 repositories {
@@ -128,3 +128,5 @@ publishing {
 signing {
     sign publishing.publications.mavenJava
 }
+sourceCompatibility = JavaVersion.VERSION_19
+targetCompatibility = JavaVersion.VERSION_19
