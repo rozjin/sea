@@ -4,14 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="4533ba57-9b39-4dd8-b4a2-7252db0c5eba" name="Changes" comment="support byte[] in handler return">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="4533ba57-9b39-4dd8-b4a2-7252db0c5eba" name="Changes" comment="added guice support for implicit injeections">
       <change beforePath="$PROJECT_DIR$/build.gradle" beforeDir="false" afterPath="$PROJECT_DIR$/build.gradle" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" beforeDir="false" afterPath="$PROJECT_DIR$/gradle/wrapper/gradle-wrapper.properties" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/Ocean.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/OceanInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/fish/OceanInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/AnyInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/AnyInjector.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/us/racem/sea/inject/RouteMappingInjector.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +65,11 @@
     </option>
   </component>
   <component name="Git.Settings">
+    <option name="PREVIOUS_COMMIT_AUTHORS">
+      <list>
+        <option value="racemus &lt;admin@racem.us&gt;" />
+      </list>
+    </option>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="main" />
@@ -337,7 +336,7 @@
       <workItem from="1667451273803" duration="768000" />
       <workItem from="1668730057287" duration="130000" />
       <workItem from="1668730206638" duration="853000" />
-      <workItem from="1670264817991" duration="1539000" />
+      <workItem from="1670264817991" duration="1777000" />
     </task>
     <task id="LOCAL-00001" summary="Thunkery">
       <created>1666085991497</created>
@@ -381,7 +380,21 @@
       <option name="project" value="LOCAL" />
       <updated>1667124199880</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="added guice support for implicit injeections">
+      <created>1670266573151</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1670266573151</updated>
+    </task>
+    <task id="LOCAL-00008" summary="added guice support for implicit injeections">
+      <created>1670266583197</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1670266583197</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -410,6 +423,8 @@
     <MESSAGE value="add licence" />
     <MESSAGE value="routing changes, as well as how segments are handled, and codecs." />
     <MESSAGE value="support byte[] in handler return" />
-    <option name="LAST_COMMIT_MESSAGE" value="support byte[] in handler return" />
+    <MESSAGE value="added guice support for implicit injections" />
+    <MESSAGE value="added guice support for implicit injeections" />
+    <option name="LAST_COMMIT_MESSAGE" value="added guice support for implicit injeections" />
   </component>
 </project>
