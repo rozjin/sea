@@ -18,7 +18,7 @@ dependencies {
     api 'com.fasterxml.jackson.core:jackson-databind:2.14.0'
     api 'com.typesafe:config:1.4.2'
 
-    implementation 'ch.qos.reload4j:reload4j:1.2.22'
+    implementation 'ch.qos.reload4j:reload4j:1.2.24'
     implementation "com.squareup.okio:okio:3.2.0"
 
     implementation 'org.apache.commons:commons-lang3:3.12.0'
